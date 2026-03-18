@@ -1,20 +1,16 @@
 namespace SkillTracker;
 
-public class ConsoleUI
-{
+public class ConsoleUI {
     private readonly FileSaver fileSaver = new();
 
     private const string SkillsFilename = "data/skills.json";
     private const string GoalsFilename = "data/goals.json";
     private const string ActivitiesFilename = "data/activities.json";
 
-    public void Show()
-    {
-        
+    public void Show() {
         bool running = true;
 
-        while (running)
-        {
+        while (running) {
             Console.Clear();
             Console.WriteLine("=== Skill Tracker ===");
             Console.WriteLine("1. Add Skill");
@@ -24,11 +20,11 @@ public class ConsoleUI
             Console.WriteLine("5. Exit");
             Console.Write("Select an option: ");
 
-            string choice = Console.ReadLine();
+            string? choice = Console.ReadLine();
             if (choice == null) choice = "";
+            choice = choice.Trim();
 
-            switch (choice)
-            {
+            switch (choice) {
                 case "1":
                     AddSkill();
                     break;
@@ -53,8 +49,7 @@ public class ConsoleUI
         }
     }
 
-    private void AddSkill()
-    {
+    private void AddSkill() {
         var skills = fileSaver.LoadData<Skill>(SkillsFilename);
 
         Console.Clear();
@@ -63,29 +58,35 @@ public class ConsoleUI
         string name = Console.ReadLine();
         if (name == null) name = "";
 
-        if (string.IsNullOrWhiteSpace(name))
-        {
+        if (string.IsNullOrWhiteSpace(name)) {
             Console.WriteLine("Skill name cannot be empty.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
 
+        foreach (var skill in skills) {
+            if (skill.Name == name.Trim()) {
+                Console.WriteLine("A skill with that name already exists.");
+                Console.WriteLine("\nPress Enter to continue...");
+                Console.ReadLine();
+                return;
+            }
+        }
+
         int nextSkillId = 1;
 
-        foreach (var skill in skills)
-        {
-            if (skill.Id >= nextSkillId)
-            {
+        foreach (var skill in skills) {
+            if (skill.Id >= nextSkillId) {
                 nextSkillId = skill.Id + 1;
             }
         }
 
-        var skill = new Skill { 
-            Id = nextSkillId, 
-            Name = name.Trim() 
+        var newSkill = new Skill {
+            Id = nextSkillId,
+            Name = name.Trim()
         };
-        skills.Add(skill);
+        skills.Add(newSkill);
 
         fileSaver.SaveData(SkillsFilename, skills);
 
@@ -94,16 +95,14 @@ public class ConsoleUI
         Console.ReadLine();
     }
 
-    private void AddGoal()
-    {
+    private void AddGoal() {
         var skills = fileSaver.LoadData<Skill>(SkillsFilename);
         var goals = fileSaver.LoadData<Goal>(GoalsFilename);
 
         Console.Clear();
         Console.WriteLine("=== Add Goal ===");
 
-        if (skills.Count == 0)
-        {
+        if (skills.Count == 0) {
             Console.WriteLine("No skills found. Please add a skill.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -111,22 +110,19 @@ public class ConsoleUI
         }
 
         Console.WriteLine("Available Skills:");
-        foreach (var skill in skills)
-        {
+        foreach (var skill in skills) {
             Console.WriteLine($"{skill.Id}. {skill.Name}");
         }
 
         Console.Write("Enter skill ID: ");
-        string skillInput = Console.ReadLine();
+        string? skillInput = Console.ReadLine();
         if (skillInput == null) skillInput = "";
+        skillInput = skillInput.Trim();
 
-        int skillId;
-        try
-        {
-            skillId = int.Parse(skillInput);
-        }
-        catch
-        {
+        int selectedSkillId;
+        try {
+            selectedSkillId = int.Parse(skillInput);
+        } catch {
             Console.WriteLine("Invalid skill ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -135,17 +131,14 @@ public class ConsoleUI
 
         bool isValidSkill = false;
 
-        foreach (var skill in skills)
-        {
-            if (skill.Id == skillId)
-            {
+        foreach (var existingSkill in skills) {
+            if (existingSkill.Id == selectedSkillId) {
                 isValidSkill = true;
                 break;
             }
         }
 
-        if (!isValidSkill)
-        {
+        if (!isValidSkill) {
             Console.WriteLine("Invalid skill ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -156,8 +149,7 @@ public class ConsoleUI
         string title = Console.ReadLine();
         if (title == null) title = "";
 
-        if (string.IsNullOrWhiteSpace(title))
-        {
+        if (string.IsNullOrWhiteSpace(title)) {
             Console.WriteLine("Goal title cannot be empty.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -166,21 +158,19 @@ public class ConsoleUI
 
         int nextGoalId = 1;
 
-        foreach (var goal in goals)
-        {
-            if (goal.Id >= nextGoalId)
-            {
+        foreach (var goal in goals) {
+            if (goal.Id >= nextGoalId) {
                 nextGoalId = goal.Id + 1;
             }
         }
 
-        var goal = new Goal {
+        var newGoal = new Goal {
             Id = nextGoalId,
-            SkillId = skillId,
+            SkillId = selectedSkillId,
             Title = title.Trim(),
             Status = ProgressStatus.NotStarted
         };
-        goals.Add(goal);
+        goals.Add(newGoal);
 
         fileSaver.SaveData(GoalsFilename, goals);
 
@@ -189,8 +179,7 @@ public class ConsoleUI
         Console.ReadLine();
     }
 
-    private void AddActivity()
-    {
+    private void AddActivity() {
         var skills = fileSaver.LoadData<Skill>(SkillsFilename);
         var goals = fileSaver.LoadData<Goal>(GoalsFilename);
         var activities = fileSaver.LoadData<Activity>(ActivitiesFilename);
@@ -198,8 +187,7 @@ public class ConsoleUI
         Console.Clear();
         Console.WriteLine("=== Add Activity ===");
 
-        if (skills.Count == 0)
-        {
+        if (skills.Count == 0) {
             Console.WriteLine("No skills found. Add a skill first.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -207,22 +195,19 @@ public class ConsoleUI
         }
 
         Console.WriteLine("Available Skills:");
-        foreach (var skill in skills)
-        {
+        foreach (var skill in skills) {
             Console.WriteLine($"{skill.Id}. {skill.Name}");
         }
 
         Console.Write("Enter skill ID: ");
-        string skillInput = Console.ReadLine();
+        string? skillInput = Console.ReadLine();
         if (skillInput == null) skillInput = "";
+        skillInput = skillInput.Trim();
 
-        int skillId;
-        try
-        {
-            skillId = int.Parse(skillInput);
-        }
-        catch
-        {
+        int selectedSkillId;
+        try {
+            selectedSkillId = int.Parse(skillInput);
+        } catch {
             Console.WriteLine("Invalid skill ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -231,17 +216,14 @@ public class ConsoleUI
 
         bool isValidSkill = false;
 
-        foreach (var skill in skills)
-        {
-            if (skill.Id == skillId)
-            {
+        foreach (var existingSkill in skills) {
+            if (existingSkill.Id == selectedSkillId) {
                 isValidSkill = true;
                 break;
             }
         }
 
-        if (!isValidSkill)
-        {
+        if (!isValidSkill) {
             Console.WriteLine("Invalid skill ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -249,16 +231,13 @@ public class ConsoleUI
         }
 
         var skillGoals = new List<Goal>();
-        foreach (var goal in goals)
-        {
-            if (goal.SkillId == skillId)
-            {
-                skillGoals.Add(goal);
+        foreach (var existingGoal in goals) {
+            if (existingGoal.SkillId == selectedSkillId) {
+                skillGoals.Add(existingGoal);
             }
         }
 
-        if (skillGoals.Count == 0)
-        {
+        if (skillGoals.Count == 0) {
             Console.WriteLine("No goals found for this skill. Please add a goal.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -266,22 +245,19 @@ public class ConsoleUI
         }
 
         Console.WriteLine("Available Goals:");
-        foreach (var goal in skillGoals)
-        {
+        foreach (var goal in skillGoals) {
             Console.WriteLine($"{goal.Id}. {goal.Title} ({goal.Status})");
         }
 
         Console.Write("Enter goal ID: ");
-        string goalInput = Console.ReadLine();
+        string? goalInput = Console.ReadLine();
         if (goalInput == null) goalInput = "";
+        goalInput = goalInput.Trim();
 
-        int goalId;
-        try
-        {
-            goalId = int.Parse(goalInput);
-        }
-        catch
-        {
+        int selectedGoalId;
+        try {
+            selectedGoalId = int.Parse(goalInput);
+        } catch {
             Console.WriteLine("Invalid goal ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -289,29 +265,34 @@ public class ConsoleUI
         }
 
         bool isValidGoal = false;
-        foreach (var goal in skillGoals)
-        {
-            if (goal.Id == goalId)
-            {
+        foreach (var existingGoal in skillGoals) {
+            if (existingGoal.Id == selectedGoalId) {
                 isValidGoal = true;
                 break;
             }
         }
 
-        if (!isValidGoal)
-        {
+        if (!isValidGoal) {
             Console.WriteLine("Invalid goal ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
 
+        foreach (var existingGoal in skillGoals) {
+            if (existingGoal.Id == selectedGoalId) {
+                if (existingGoal.Status == ProgressStatus.NotStarted) {
+                    existingGoal.Status = ProgressStatus.InProgress;
+                }
+                break;
+            }
+        }
+
         Console.Write("Enter activity title: ");
         string title = Console.ReadLine();
         if (title == null) title = "";
 
-        if (string.IsNullOrWhiteSpace(title))
-        {
+        if (string.IsNullOrWhiteSpace(title)) {
             Console.WriteLine("Activity title cannot be empty.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
@@ -320,21 +301,19 @@ public class ConsoleUI
 
         int nextActivityId = 1;
 
-        foreach (var activity in activities)
-        {
-            if (activity.Id >= nextActivityId)
-            {
+        foreach (var activity in activities) {
+            if (activity.Id >= nextActivityId) {
                 nextActivityId = activity.Id + 1;
             }
         }
 
-        var activity = new Activity {
+        var newActivity = new Activity {
             Id = nextActivityId,
-            GoalId = goalId,
+            GoalId = selectedGoalId,
             Title = title.Trim(),
             Date = DateTime.Now
         };
-        activities.Add(activity);
+        activities.Add(newActivity);
 
         fileSaver.SaveData(ActivitiesFilename, activities);
         fileSaver.SaveData(GoalsFilename, goals);
@@ -344,8 +323,7 @@ public class ConsoleUI
         Console.ReadLine();
     }
 
-    private void ViewSkills()
-    {
+    private void ViewSkills() {
         var skills = fileSaver.LoadData<Skill>(SkillsFilename);
         var goals = fileSaver.LoadData<Goal>(GoalsFilename);
         var activities = fileSaver.LoadData<Activity>(ActivitiesFilename);
@@ -353,54 +331,44 @@ public class ConsoleUI
         Console.Clear();
         Console.WriteLine("=== View Skills ===");
 
-        if (skills.Count == 0)
-        {
+        if (skills.Count == 0) {
             Console.WriteLine("No skills found.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
 
-        foreach (var skill in skills)
-        {
+        foreach (var skill in skills) {
             Console.WriteLine($"\nSkill: {skill.Name} (ID: {skill.Id})");
 
             var skillGoals = new List<Goal>();
-            foreach (var goal in goals)
-            {
-                if (goal.SkillId == skill.Id)
-                {
+            foreach (var goal in goals) {
+                if (goal.SkillId == skill.Id) {
                     skillGoals.Add(goal);
                 }
             }
 
-            if (skillGoals.Count == 0)
-            {
+            if (skillGoals.Count == 0) {
                 Console.WriteLine("  No goals.");
                 continue;
             }
 
-            foreach (var goal in skillGoals)
-            {
+            foreach (var goal in skillGoals) {
                 Console.WriteLine($"  Goal: {goal.Title} (ID: {goal.Id}, Status: {goal.Status})");
 
                 var goalActivities = new List<Activity>();
-                foreach (var activity in activities)
-                {
-                    if (activity.GoalId == goal.Id)
-                    {
+                foreach (var activity in activities) {
+                    if (activity.GoalId == goal.Id) {
                         goalActivities.Add(activity);
                     }
                 }
 
-                if (goalActivities.Count == 0)
-                {
+                if (goalActivities.Count == 0) {
                     Console.WriteLine("    No activities.");
                     continue;
                 }
 
-                foreach (var activity in goalActivities)
-                {
+                foreach (var activity in goalActivities) {
                     Console.WriteLine($"    Activity: {activity.Title} ({activity.Date:g})");
                 }
             }
@@ -409,5 +377,4 @@ public class ConsoleUI
         Console.WriteLine("\nPress Enter to continue...");
         Console.ReadLine();
     }
-
 }

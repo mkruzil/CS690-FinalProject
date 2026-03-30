@@ -147,12 +147,15 @@ public class ConsoleUI {
         Console.Write("Enter skill ID: ");
         string skillInput = Helpers.TrimText(Console.ReadLine());
 
-        if (!Helpers.TryParseInt(skillInput, out int selectedSkillId)) {
+        int? parsedSkillId = Helpers.ParseIntOrNull(skillInput);
+        if (parsedSkillId is null) {
             Console.WriteLine("Invalid skill ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
+
+        int selectedSkillId = parsedSkillId.Value;
 
         bool isValidSkill = false;
 
@@ -220,12 +223,15 @@ public class ConsoleUI {
         Console.Write("Enter skill ID: ");
         string skillInput = Helpers.TrimText(Console.ReadLine());
 
-        if (!Helpers.TryParseInt(skillInput, out int selectedSkillId)) {
+        int? parsedSkillId = Helpers.ParseIntOrNull(skillInput);
+        if (parsedSkillId is null) {
             Console.WriteLine("Invalid skill ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
+
+        int selectedSkillId = parsedSkillId.Value;
 
         bool isValidSkill = false;
 
@@ -265,12 +271,15 @@ public class ConsoleUI {
         Console.Write("Enter goal ID: ");
         string goalInput = Helpers.TrimText(Console.ReadLine());
 
-        if (!Helpers.TryParseInt(goalInput, out int selectedGoalId)) {
+        int? parsedGoalId = Helpers.ParseIntOrNull(goalInput);
+        if (parsedGoalId is null) {
             Console.WriteLine("Invalid goal ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
+
+        int selectedGoalId = parsedGoalId.Value;
 
         bool isValidGoal = false;
         foreach (var existingGoal in skillGoals) {
@@ -345,12 +354,15 @@ public class ConsoleUI {
         Console.Write("Enter skill ID to update: ");
         string skillInput = Helpers.TrimText(Console.ReadLine());
 
-        if (!Helpers.TryParseInt(skillInput, out int selectedSkillId)) {
+        int? parsedSkillId = Helpers.ParseIntOrNull(skillInput);
+        if (parsedSkillId is null) {
             Console.WriteLine("Invalid skill ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
+
+        int selectedSkillId = parsedSkillId.Value;
 
         Skill? skillToUpdate = null;
         foreach (var skill in skills) {
@@ -417,12 +429,15 @@ public class ConsoleUI {
         Console.Write("Enter skill ID to delete: ");
         string skillInput = Helpers.TrimText(Console.ReadLine());
 
-        if (!Helpers.TryParseInt(skillInput, out int selectedSkillId)) {
+        int? parsedSkillId = Helpers.ParseIntOrNull(skillInput);
+        if (parsedSkillId is null) {
             Console.WriteLine("Invalid skill ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
+
+        int selectedSkillId = parsedSkillId.Value;
 
         bool isValidSkill = false;
         foreach (var existingSkill in skills) {
@@ -504,12 +519,15 @@ public class ConsoleUI {
         Console.Write("Enter goal ID to update: ");
         string goalInput = Helpers.TrimText(Console.ReadLine());
 
-        if (!Helpers.TryParseInt(goalInput, out int selectedGoalId)) {
+        int? parsedGoalId = Helpers.ParseIntOrNull(goalInput);
+        if (parsedGoalId is null) {
             Console.WriteLine("Invalid goal ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
+
+        int selectedGoalId = parsedGoalId.Value;
 
         Goal? goalToUpdate = null;
         foreach (var goal in goals) {
@@ -607,12 +625,15 @@ public class ConsoleUI {
         Console.Write("Enter goal ID to delete: ");
         string goalInput = Helpers.TrimText(Console.ReadLine());
 
-        if (!Helpers.TryParseInt(goalInput, out int selectedGoalId)) {
+        int? parsedGoalId = Helpers.ParseIntOrNull(goalInput);
+        if (parsedGoalId is null) {
             Console.WriteLine("Invalid goal ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
+
+        int selectedGoalId = parsedGoalId.Value;
 
         bool isValidGoal = false;
         foreach (var existingGoal in goals) {
@@ -672,12 +693,15 @@ public class ConsoleUI {
         Console.Write("Enter activity ID to update: ");
         string activityInput = Helpers.TrimText(Console.ReadLine());
 
-        if (!Helpers.TryParseInt(activityInput, out int selectedActivityId)) {
+        int? parsedActivityId = Helpers.ParseIntOrNull(activityInput);
+        if (parsedActivityId is null) {
             Console.WriteLine("Invalid activity ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
+
+        int selectedActivityId = parsedActivityId.Value;
 
         Activity? activityToUpdate = null;
         foreach (var activity in activities) {
@@ -733,12 +757,15 @@ public class ConsoleUI {
         Console.Write("Enter activity ID to delete: ");
         string activityInput = Helpers.TrimText(Console.ReadLine());
 
-        if (!Helpers.TryParseInt(activityInput, out int selectedActivityId)) {
+        int? parsedActivityId = Helpers.ParseIntOrNull(activityInput);
+        if (parsedActivityId is null) {
             Console.WriteLine("Invalid activity ID.");
             Console.WriteLine("\nPress Enter to continue...");
             Console.ReadLine();
             return;
         }
+
+        int selectedActivityId = parsedActivityId.Value;
 
         bool isValidActivity = false;
         foreach (var existingActivity in activities) {

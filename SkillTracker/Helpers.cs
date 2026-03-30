@@ -45,8 +45,12 @@ public static class Helpers {
         return text.Trim();
     }
 
-    public static bool TryParseInt(string? text, out int value) {
+    public static int? ParseIntOrNull(string? text) {
         string trimmed = TrimText(text);
-        return int.TryParse(trimmed, out value);
+        try {
+            return int.Parse(trimmed);
+        } catch (Exception ex) when (ex is FormatException or OverflowException) {
+            return null;
+        }
     }
 }

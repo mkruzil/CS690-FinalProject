@@ -24,7 +24,7 @@ public class FileSaver {
     }
 
     public void SaveData<T>(string filePath, List<T> data) {
-        string directory = Path.GetDirectoryName(filePath);
+        string? directory = Path.GetDirectoryName(filePath);
         if (!string.IsNullOrEmpty(directory)) {
             Directory.CreateDirectory(directory);
         }

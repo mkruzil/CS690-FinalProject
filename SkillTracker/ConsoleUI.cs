@@ -33,11 +33,16 @@ public class ConsoleUI {
             Console.WriteLine();
             Console.WriteLine("[View Progress]");
             Console.WriteLine();
-            Console.WriteLine("   10. View Skills");
+            Console.WriteLine("   10. View Progress");
+            Console.WriteLine();
+            Console.WriteLine("[View Skills]");
+            Console.WriteLine();
+            Console.WriteLine("   11. View Skills List");
+            Console.WriteLine("   12. View Skill Details");
             Console.WriteLine();
             Console.WriteLine("[Session]");
             Console.WriteLine();
-            Console.WriteLine("   11. Exit");
+            Console.WriteLine("   13. Exit");
             Console.WriteLine();
             Console.Write("Select an option: ");
 
@@ -72,15 +77,19 @@ public class ConsoleUI {
                     DeleteActivity();
                     break;
                 case "10":
-                    ViewSkills();
+                    ViewProgress();
                     break;
                 case "11":
+                    ViewSkillsList();
+                    break;
+                case "12":
+                    ViewSkillDetails();
+                    break;
+                case "13":
                     running = false;
                     break;
                 default:
-                    Console.WriteLine("Invalid option.");
-                    Console.WriteLine("\nPress Enter to continue...");
-                    Console.ReadLine();
+                    Helpers.Pause("Invalid option.");
                     break;
             }
         }
@@ -95,17 +104,13 @@ public class ConsoleUI {
         string name = Helpers.TrimText(Console.ReadLine());
 
         if (string.IsNullOrWhiteSpace(name)) {
-            Console.WriteLine("Skill name cannot be empty.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("Skill name cannot be empty.");
             return;
         }
 
         foreach (var skill in skills) {
             if (skill.Name == name) {
-                Console.WriteLine("A skill with that name already exists.");
-                Console.WriteLine("\nPress Enter to continue...");
-                Console.ReadLine();
+                Helpers.Pause("A skill with that name already exists.");
                 return;
             }
         }
@@ -120,9 +125,7 @@ public class ConsoleUI {
 
         fileSaver.SaveData(SkillsFilename, skills);
 
-        Console.WriteLine("Skill added successfully.");
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        Helpers.Pause("Skill added successfully.");
     }
 
     private void AddGoal() {
@@ -133,53 +136,24 @@ public class ConsoleUI {
         Console.WriteLine("=== Add Goal ===");
 
         if (skills.Count == 0) {
-            Console.WriteLine("No skills found. Please add a skill.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No skills found. Please add a skill.");
             return;
         }
 
-        Console.WriteLine("Available Skills:");
-        foreach (var skill in skills) {
-            Console.WriteLine($"{skill.Id}. {skill.Name}");
-        }
+        Helpers.WriteSkills(skills, "Available Skills:");
 
-        Console.Write("Enter skill ID: ");
-        string skillInput = Helpers.TrimText(Console.ReadLine());
-
-        int? parsedSkillId = Helpers.ParseIntOrNull(skillInput);
-        if (parsedSkillId is null) {
-            Console.WriteLine("Invalid skill ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+        Skill? chosenSkill = Helpers.PromptForSkill(skills, "Enter skill ID: ");
+        if (chosenSkill == null) {
             return;
         }
 
-        int selectedSkillId = parsedSkillId.Value;
-
-        bool isValidSkill = false;
-
-        foreach (var existingSkill in skills) {
-            if (existingSkill.Id == selectedSkillId) {
-                isValidSkill = true;
-                break;
-            }
-        }
-
-        if (!isValidSkill) {
-            Console.WriteLine("Invalid skill ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
-            return;
-        }
+        int selectedSkillId = chosenSkill.Id;
 
         Console.Write("Enter goal title: ");
         string title = Helpers.TrimText(Console.ReadLine());
 
         if (string.IsNullOrWhiteSpace(title)) {
-            Console.WriteLine("Goal title cannot be empty.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("Goal title cannot be empty.");
             return;
         }
 
@@ -195,9 +169,7 @@ public class ConsoleUI {
 
         fileSaver.SaveData(GoalsFilename, goals);
 
-        Console.WriteLine("Goal added successfully.");
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        Helpers.Pause("Goal added successfully.");
     }
 
     private void AddActivity() {
@@ -209,45 +181,18 @@ public class ConsoleUI {
         Console.WriteLine("=== Add Activity ===");
 
         if (skills.Count == 0) {
-            Console.WriteLine("No skills found. Add a skill first.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No skills found. Add a skill first.");
             return;
         }
 
-        Console.WriteLine("Available Skills:");
-        foreach (var skill in skills) {
-            Console.WriteLine($"{skill.Id}. {skill.Name}");
-        }
+        Helpers.WriteSkills(skills, "Available Skills:");
 
-        Console.Write("Enter skill ID: ");
-        string skillInput = Helpers.TrimText(Console.ReadLine());
-
-        int? parsedSkillId = Helpers.ParseIntOrNull(skillInput);
-        if (parsedSkillId is null) {
-            Console.WriteLine("Invalid skill ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+        Skill? activitySkill = Helpers.PromptForSkill(skills, "Enter skill ID: ");
+        if (activitySkill == null) {
             return;
         }
 
-        int selectedSkillId = parsedSkillId.Value;
-
-        bool isValidSkill = false;
-
-        foreach (var existingSkill in skills) {
-            if (existingSkill.Id == selectedSkillId) {
-                isValidSkill = true;
-                break;
-            }
-        }
-
-        if (!isValidSkill) {
-            Console.WriteLine("Invalid skill ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
-            return;
-        }
+        int selectedSkillId = activitySkill.Id;
 
         var skillGoals = new List<Goal>();
         foreach (var existingGoal in goals) {
@@ -257,61 +202,29 @@ public class ConsoleUI {
         }
 
         if (skillGoals.Count == 0) {
-            Console.WriteLine("No goals found for this skill. Please add a goal.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No goals found for this skill. Please add a goal.");
             return;
         }
 
         Console.WriteLine("Available Goals:");
-        foreach (var goal in skillGoals) {
-            Console.WriteLine($"{goal.Id}. {goal.Title} ({goal.Status})");
-        }
+        Helpers.WriteGoals(skillGoals, labelStatus: false);
 
-        Console.Write("Enter goal ID: ");
-        string goalInput = Helpers.TrimText(Console.ReadLine());
-
-        int? parsedGoalId = Helpers.ParseIntOrNull(goalInput);
-        if (parsedGoalId is null) {
-            Console.WriteLine("Invalid goal ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+        Goal? chosenGoal = Helpers.PromptForGoal(skillGoals, "Enter goal ID: ");
+        if (chosenGoal == null) {
             return;
         }
 
-        int selectedGoalId = parsedGoalId.Value;
+        int selectedGoalId = chosenGoal.Id;
 
-        bool isValidGoal = false;
-        foreach (var existingGoal in skillGoals) {
-            if (existingGoal.Id == selectedGoalId) {
-                isValidGoal = true;
-                break;
-            }
-        }
-
-        if (!isValidGoal) {
-            Console.WriteLine("Invalid goal ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
-            return;
-        }
-
-        foreach (var existingGoal in skillGoals) {
-            if (existingGoal.Id == selectedGoalId) {
-                if (existingGoal.Status == ProgressStatus.NotStarted) {
-                    existingGoal.Status = ProgressStatus.InProgress;
-                }
-                break;
-            }
+        if (chosenGoal.Status == ProgressStatus.NotStarted) {
+            chosenGoal.Status = ProgressStatus.InProgress;
         }
 
         Console.Write("Enter activity title: ");
         string title = Helpers.TrimText(Console.ReadLine());
 
         if (string.IsNullOrWhiteSpace(title)) {
-            Console.WriteLine("Activity title cannot be empty.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("Activity title cannot be empty.");
             return;
         }
 
@@ -328,9 +241,7 @@ public class ConsoleUI {
         fileSaver.SaveData(ActivitiesFilename, activities);
         fileSaver.SaveData(GoalsFilename, goals);
 
-        Console.WriteLine("Activity added successfully.");
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        Helpers.Pause("Activity added successfully.");
     }
 
     private void UpdateSkill() {
@@ -340,60 +251,35 @@ public class ConsoleUI {
         Console.WriteLine("=== Update Skill ===");
 
         if (skills.Count == 0) {
-            Console.WriteLine("No skills found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No skills found.");
             return;
         }
 
-        Console.WriteLine("Skills:");
-        foreach (var skill in skills) {
-            Console.WriteLine($"{skill.Id}. {skill.Name}");
-        }
+        Helpers.WriteSkills(skills, "Skills:");
 
-        Console.Write("Enter skill ID to update: ");
-        string skillInput = Helpers.TrimText(Console.ReadLine());
-
-        int? parsedSkillId = Helpers.ParseIntOrNull(skillInput);
-        if (parsedSkillId is null) {
-            Console.WriteLine("Invalid skill ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
-            return;
-        }
-
-        int selectedSkillId = parsedSkillId.Value;
-
-        Skill? skillToUpdate = null;
-        foreach (var skill in skills) {
-            if (skill.Id == selectedSkillId) {
-                skillToUpdate = skill;
-                break;
-            }
-        }
-
+        Skill? skillToUpdate = Helpers.PromptForSkill(
+            skills,
+            "Enter skill ID to update: ",
+            "Invalid skill ID.",
+            "Skill not found."
+        );
         if (skillToUpdate == null) {
-            Console.WriteLine("Skill not found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
             return;
         }
+
+        int selectedSkillId = skillToUpdate.Id;
 
         Console.Write("Enter new skill name: ");
         string name = Helpers.TrimText(Console.ReadLine());
 
         if (string.IsNullOrWhiteSpace(name)) {
-            Console.WriteLine("Skill name cannot be empty.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("Skill name cannot be empty.");
             return;
         }
 
         foreach (var skill in skills) {
             if (skill.Id != selectedSkillId && skill.Name == name) {
-                Console.WriteLine("Another skill already has that name.");
-                Console.WriteLine("\nPress Enter to continue...");
-                Console.ReadLine();
+                Helpers.Pause("Another skill already has that name.");
                 return;
             }
         }
@@ -401,9 +287,7 @@ public class ConsoleUI {
         skillToUpdate.Name = name;
         fileSaver.SaveData(SkillsFilename, skills);
 
-        Console.WriteLine("Skill updated successfully.");
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        Helpers.Pause("Skill updated successfully.");
     }
 
     private void DeleteSkill() {
@@ -415,44 +299,23 @@ public class ConsoleUI {
         Console.WriteLine("=== Delete Skill ===");
 
         if (skills.Count == 0) {
-            Console.WriteLine("No skills found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No skills found.");
             return;
         }
 
-        Console.WriteLine("Skills:");
-        foreach (var skill in skills) {
-            Console.WriteLine($"{skill.Id}. {skill.Name}");
-        }
+        Helpers.WriteSkills(skills, "Skills:");
 
-        Console.Write("Enter skill ID to delete: ");
-        string skillInput = Helpers.TrimText(Console.ReadLine());
-
-        int? parsedSkillId = Helpers.ParseIntOrNull(skillInput);
-        if (parsedSkillId is null) {
-            Console.WriteLine("Invalid skill ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+        Skill? skillToDelete = Helpers.PromptForSkill(
+            skills,
+            "Enter skill ID to delete: ",
+            "Invalid skill ID.",
+            "Skill not found."
+        );
+        if (skillToDelete == null) {
             return;
         }
 
-        int selectedSkillId = parsedSkillId.Value;
-
-        bool isValidSkill = false;
-        foreach (var existingSkill in skills) {
-            if (existingSkill.Id == selectedSkillId) {
-                isValidSkill = true;
-                break;
-            }
-        }
-
-        if (!isValidSkill) {
-            Console.WriteLine("Skill not found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
-            return;
-        }
+        int selectedSkillId = skillToDelete.Id;
 
         var goalIdsToRemove = new List<int>();
         foreach (var goal in goals) {
@@ -493,9 +356,7 @@ public class ConsoleUI {
         fileSaver.SaveData(GoalsFilename, newGoals);
         fileSaver.SaveData(SkillsFilename, newSkills);
 
-        Console.WriteLine("Skill deleted.");
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        Helpers.Pause("Skill deleted.");
     }
 
     private void UpdateGoal() {
@@ -505,42 +366,20 @@ public class ConsoleUI {
         Console.WriteLine("=== Update Goal ===");
 
         if (goals.Count == 0) {
-            Console.WriteLine("No goals found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No goals found.");
             return;
         }
 
         Console.WriteLine("Goals:");
-        foreach (var goal in goals) {
-            Console.WriteLine($"{goal.Id}. {goal.Title} (Status: {goal.Status})");
-        }
+        Helpers.WriteGoals(goals);
 
-        Console.Write("Enter goal ID to update: ");
-        string goalInput = Helpers.TrimText(Console.ReadLine());
-
-        int? parsedGoalId = Helpers.ParseIntOrNull(goalInput);
-        if (parsedGoalId is null) {
-            Console.WriteLine("Invalid goal ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
-            return;
-        }
-
-        int selectedGoalId = parsedGoalId.Value;
-
-        Goal? goalToUpdate = null;
-        foreach (var goal in goals) {
-            if (goal.Id == selectedGoalId) {
-                goalToUpdate = goal;
-                break;
-            }
-        }
-
+        Goal? goalToUpdate = Helpers.PromptForGoal(
+            goals,
+            "Enter goal ID to update: ",
+            "Invalid goal ID.",
+            "Goal not found."
+        );
         if (goalToUpdate == null) {
-            Console.WriteLine("Goal not found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
             return;
         }
 
@@ -555,9 +394,7 @@ public class ConsoleUI {
             string title = Helpers.TrimText(Console.ReadLine());
 
             if (string.IsNullOrWhiteSpace(title)) {
-                Console.WriteLine("Goal title cannot be empty.");
-                Console.WriteLine("\nPress Enter to continue...");
-                Console.ReadLine();
+                Helpers.Pause("Goal title cannot be empty.");
                 return;
             }
 
@@ -583,24 +420,18 @@ public class ConsoleUI {
                     goalToUpdate.Status = ProgressStatus.Completed;
                     break;
                 default:
-                    Console.WriteLine("Invalid status option.");
-                    Console.WriteLine("\nPress Enter to continue...");
-                    Console.ReadLine();
+                    Helpers.Pause("Invalid status option.");
                     return;
             }
         }
         else {
-            Console.WriteLine("Invalid option.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("Invalid option.");
             return;
         }
 
         fileSaver.SaveData(GoalsFilename, goals);
 
-        Console.WriteLine("Goal updated successfully.");
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        Helpers.Pause("Goal updated successfully.");
     }
 
     private void DeleteGoal() {
@@ -611,44 +442,24 @@ public class ConsoleUI {
         Console.WriteLine("=== Delete Goal ===");
 
         if (goals.Count == 0) {
-            Console.WriteLine("No goals found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No goals found.");
             return;
         }
 
         Console.WriteLine("Goals:");
-        foreach (var goal in goals) {
-            Console.WriteLine($"{goal.Id}. {goal.Title} (Status: {goal.Status})");
-        }
+        Helpers.WriteGoals(goals);
 
-        Console.Write("Enter goal ID to delete: ");
-        string goalInput = Helpers.TrimText(Console.ReadLine());
-
-        int? parsedGoalId = Helpers.ParseIntOrNull(goalInput);
-        if (parsedGoalId is null) {
-            Console.WriteLine("Invalid goal ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+        Goal? goalToDelete = Helpers.PromptForGoal(
+            goals,
+            "Enter goal ID to delete: ",
+            "Invalid goal ID.",
+            "Goal not found."
+        );
+        if (goalToDelete == null) {
             return;
         }
 
-        int selectedGoalId = parsedGoalId.Value;
-
-        bool isValidGoal = false;
-        foreach (var existingGoal in goals) {
-            if (existingGoal.Id == selectedGoalId) {
-                isValidGoal = true;
-                break;
-            }
-        }
-
-        if (!isValidGoal) {
-            Console.WriteLine("Goal not found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
-            return;
-        }
+        int selectedGoalId = goalToDelete.Id;
 
         var newActivities = new List<Activity>();
         foreach (var activity in activities) {
@@ -667,9 +478,7 @@ public class ConsoleUI {
         fileSaver.SaveData(ActivitiesFilename, newActivities);
         fileSaver.SaveData(GoalsFilename, newGoals);
 
-        Console.WriteLine("Goal deleted.");
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        Helpers.Pause("Goal deleted.");
     }
 
     private void UpdateActivity() {
@@ -679,42 +488,20 @@ public class ConsoleUI {
         Console.WriteLine("=== Update Activity ===");
 
         if (activities.Count == 0) {
-            Console.WriteLine("No activities found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No activities found.");
             return;
         }
 
         Console.WriteLine("Activities:");
-        foreach (var activity in activities) {
-            Console.WriteLine($"{activity.Id}. {activity.Title} ({activity.Date:g})");
-        }
+        Helpers.WriteActivities(activities);
 
-        Console.Write("Enter activity ID to update: ");
-        string activityInput = Helpers.TrimText(Console.ReadLine());
-
-        int? parsedActivityId = Helpers.ParseIntOrNull(activityInput);
-        if (parsedActivityId is null) {
-            Console.WriteLine("Invalid activity ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
-            return;
-        }
-
-        int selectedActivityId = parsedActivityId.Value;
-
-        Activity? activityToUpdate = null;
-        foreach (var activity in activities) {
-            if (activity.Id == selectedActivityId) {
-                activityToUpdate = activity;
-                break;
-            }
-        }
-
+        Activity? activityToUpdate = Helpers.PromptForActivity(
+            activities,
+            "Enter activity ID to update: ",
+            "Invalid activity ID.",
+            "Activity not found."
+        );
         if (activityToUpdate == null) {
-            Console.WriteLine("Activity not found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
             return;
         }
 
@@ -722,18 +509,14 @@ public class ConsoleUI {
         string title = Helpers.TrimText(Console.ReadLine());
 
         if (string.IsNullOrWhiteSpace(title)) {
-            Console.WriteLine("Activity title cannot be empty.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("Activity title cannot be empty.");
             return;
         }
 
         activityToUpdate.Title = title;
         fileSaver.SaveData(ActivitiesFilename, activities);
 
-        Console.WriteLine("Activity updated successfully.");
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        Helpers.Pause("Activity updated successfully.");
     }
 
     private void DeleteActivity() {
@@ -743,44 +526,24 @@ public class ConsoleUI {
         Console.WriteLine("=== Delete Activity ===");
 
         if (activities.Count == 0) {
-            Console.WriteLine("No activities found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No activities found.");
             return;
         }
 
         Console.WriteLine("Activities:");
-        foreach (var activity in activities) {
-            Console.WriteLine($"{activity.Id}. {activity.Title} ({activity.Date:g})");
-        }
+        Helpers.WriteActivities(activities);
 
-        Console.Write("Enter activity ID to delete: ");
-        string activityInput = Helpers.TrimText(Console.ReadLine());
-
-        int? parsedActivityId = Helpers.ParseIntOrNull(activityInput);
-        if (parsedActivityId is null) {
-            Console.WriteLine("Invalid activity ID.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+        Activity? activityToDelete = Helpers.PromptForActivity(
+            activities,
+            "Enter activity ID to delete: ",
+            "Invalid activity ID.",
+            "Activity not found."
+        );
+        if (activityToDelete == null) {
             return;
         }
 
-        int selectedActivityId = parsedActivityId.Value;
-
-        bool isValidActivity = false;
-        foreach (var existingActivity in activities) {
-            if (existingActivity.Id == selectedActivityId) {
-                isValidActivity = true;
-                break;
-            }
-        }
-
-        if (!isValidActivity) {
-            Console.WriteLine("Activity not found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
-            return;
-        }
+        int selectedActivityId = activityToDelete.Id;
 
         var newActivities = new List<Activity>();
         foreach (var activity in activities) {
@@ -791,28 +554,43 @@ public class ConsoleUI {
 
         fileSaver.SaveData(ActivitiesFilename, newActivities);
 
-        Console.WriteLine("Activity deleted.");
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        Helpers.Pause("Activity deleted.");
     }
 
-    private void ViewSkills() {
+    private void ViewProgress() {
         var skills = fileSaver.LoadData<Skill>(SkillsFilename);
         var goals = fileSaver.LoadData<Goal>(GoalsFilename);
         var activities = fileSaver.LoadData<Activity>(ActivitiesFilename);
 
         Console.Clear();
-        Console.WriteLine("=== View Skills ===");
+        Console.WriteLine("=== View Progress ===");
+        Console.WriteLine();
 
         if (skills.Count == 0) {
-            Console.WriteLine("No skills found.");
-            Console.WriteLine("\nPress Enter to continue...");
-            Console.ReadLine();
+            Helpers.Pause("No skills found.");
             return;
         }
 
+        int allGoalsTotal = 0;
+        int allGoalsCompleted = 0;
+
         foreach (var skill in skills) {
-            Console.WriteLine($"\nSkill: {skill.Name} (ID: {skill.Id})");
+            int totalGoals = Helpers.CountGoalsForSkill(goals, skill.Id);
+            int completedGoals = Helpers.CountCompletedGoalsForSkill(goals, skill.Id);
+            int percent = Helpers.CalculateProgressPercent(completedGoals, totalGoals);
+
+            allGoalsTotal = allGoalsTotal + totalGoals;
+            allGoalsCompleted = allGoalsCompleted + completedGoals;
+
+            Console.WriteLine($"Skill: {skill.Name} (ID: {skill.Id})");
+            if (totalGoals == 0) {
+                Console.WriteLine("  Goals: 0 (no goals yet)");
+                Console.WriteLine("  Progress: 0%");
+            }
+            else {
+                Console.WriteLine($"  Goals completed: {completedGoals} / {totalGoals}");
+                Console.WriteLine($"  Progress: {percent}%");
+            }
 
             var skillGoals = new List<Goal>();
             foreach (var goal in goals) {
@@ -821,33 +599,103 @@ public class ConsoleUI {
                 }
             }
 
-            if (skillGoals.Count == 0) {
-                Console.WriteLine("  No goals.");
-                continue;
+            foreach (var goal in skillGoals) {
+                int activityCount = Helpers.CountActivitiesForGoal(activities, goal.Id);
+                Console.WriteLine($"    Goal: {goal.Title} — Status: {goal.Status}");
             }
 
-            foreach (var goal in skillGoals) {
-                Console.WriteLine($"  Goal: {goal.Title} (ID: {goal.Id}, Status: {goal.Status})");
+            Console.WriteLine();
+        }
 
-                var goalActivities = new List<Activity>();
-                foreach (var activity in activities) {
-                    if (activity.GoalId == goal.Id) {
-                        goalActivities.Add(activity);
-                    }
-                }
+        int overallPercent = Helpers.CalculateProgressPercent(allGoalsCompleted, allGoalsTotal);
+        Console.WriteLine("--- Overall ---");
+        if (allGoalsTotal == 0) {
+            Console.WriteLine("No goals yet across all skills.");
+        }
+        else {
+            Console.WriteLine($"Goals completed: {allGoalsCompleted} / {allGoalsTotal}");
+            Console.WriteLine($"Overall progress: {overallPercent}%");
+        }
 
-                if (goalActivities.Count == 0) {
-                    Console.WriteLine("    No activities.");
-                    continue;
-                }
+        Helpers.Pause();
+    }
 
-                foreach (var activity in goalActivities) {
-                    Console.WriteLine($"    Activity: {activity.Title} ({activity.Date:g})");
-                }
+    private void ViewSkillsList() {
+        var skills = fileSaver.LoadData<Skill>(SkillsFilename);
+
+        Console.Clear();
+        Console.WriteLine("=== View Skills List ===");
+
+        if (skills.Count == 0) {
+            Helpers.Pause("No skills found.");
+            return;
+        }
+
+        Helpers.WriteSkills(skills);
+
+        Helpers.Pause();
+    }
+
+    private void ViewSkillDetails() {
+        var skills = fileSaver.LoadData<Skill>(SkillsFilename);
+        var goals = fileSaver.LoadData<Goal>(GoalsFilename);
+        var activities = fileSaver.LoadData<Activity>(ActivitiesFilename);
+
+        Console.Clear();
+        Console.WriteLine("=== View Skill Details ===");
+
+        if (skills.Count == 0) {
+            Helpers.Pause("No skills found.");
+            return;
+        }
+
+        Helpers.WriteSkills(skills, "Skills:");
+
+        Skill? selectedSkill = Helpers.PromptForSkill(
+            skills,
+            "Enter skill ID: ",
+            "Invalid skill ID.",
+            "Skill not found."
+        );
+        if (selectedSkill == null) {
+            return;
+        }
+
+        Console.WriteLine();
+        Console.WriteLine($"Skill: {selectedSkill.Name} (ID: {selectedSkill.Id})");
+
+        var skillGoals = new List<Goal>();
+        foreach (var goal in goals) {
+            if (goal.SkillId == selectedSkill.Id) {
+                skillGoals.Add(goal);
             }
         }
 
-        Console.WriteLine("\nPress Enter to continue...");
-        Console.ReadLine();
+        if (skillGoals.Count == 0) {
+            Helpers.Pause("No goals for this skill.");
+            return;
+        }
+
+        foreach (var goal in skillGoals) {
+            Console.WriteLine($"  Goal: {goal.Title} (ID: {goal.Id}, Status: {goal.Status})");
+
+            var goalActivities = new List<Activity>();
+            foreach (var activity in activities) {
+                if (activity.GoalId == goal.Id) {
+                    goalActivities.Add(activity);
+                }
+            }
+
+            if (goalActivities.Count == 0) {
+                Console.WriteLine("    No activities.");
+                continue;
+            }
+
+            foreach (var activity in goalActivities) {
+                Console.WriteLine($"    Activity: {activity.Title} ({activity.Date:g})");
+            }
+        }
+
+        Helpers.Pause();
     }
 }
